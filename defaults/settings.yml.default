@@ -7,6 +7,8 @@ alternatrrx:
     - 1080remux
 amongus: 
   token: your_discord_bot_token
+autoscan:
+  library_root: /data/
 bazarrx: 
   roles: 
     - 1080webdl

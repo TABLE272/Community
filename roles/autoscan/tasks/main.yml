@@ -1,6 +1,6 @@
 #########################################################################
 # Title:            Community: Autoscan                                 #
-# Author(s):        Salty                                               #
+# Author(s):        Salty, TABLE                                        #
 # URL:              https://github.com/Cloudbox/Community               #
 # Docker Image(s):  cloudb0x/autoscan                                   #
 # --                                                                    #
@@ -26,15 +26,8 @@
   with_items:
     - /opt/autoscan
 
-- name: "Look for 'config.yml' file in autoscan folder"
-  stat:
-    path: "/opt/autoscan/config.yml"
-  register: autoscan_config
-
-- name: "Fail when 'config.yml' is not present"
-  fail:
-    msg: "You need to setup your config file. https://github.com/Cloudbox/autoscan"
-  when: (not autoscan_config.stat.exists) and (not continuous_integration)
+- name: Import Settings Task
+  import_tasks: "subtasks/settings.yml"
 
 - name: Create and start container
   docker_container:

@@ -1,0 +1,50 @@
+#########################################################################
+# Title:            Community: Autoscan                                 #
+# Author(s):        Salty, TABLE                                        #
+# URL:              https://github.com/Cloudbox/Community               #
+# Docker Image(s):  cloudb0x/autoscan                                   #
+# --                                                                    #
+#         Part of the Cloudbox project: https://cloudbox.works          #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Settings | Check if Plex Preferences.xml exists
+  stat:
+    path: "/opt/plex/Library/Application Support/Plex Media Server/Preferences.xml"
+  register: plex_config
+
+- name: Settings | Plex Auth Token tasks
+  block:
+
+  - name: Settings | Fetch Plex Auth Token
+    xml:
+      path: "/opt/plex/Library/Application Support/Plex Media Server/Preferences.xml"
+      xpath: /Preferences
+      content: attribute
+    register: xmlresp
+
+  - name: Settings | Register Plex Auth Token value
+    set_fact:
+      plex_auth_token: "{{ xmlresp.matches[0].Preferences.PlexOnlineToken }}"
+
+  when: plex_config.stat.exists
+
+- name: Settings | Check if 'config.yml' exists
+  stat:
+    path: "/opt/autoscan/config.yml"
+  register: autoscan_config
+
+- name: Settings | New 'config.yml' tasks
+  block:
+
+  - name: Settings | Import default 'config.yml'
+    template:
+      src: config.yml.j2
+      dest: /opt/autoscan/config.yml
+      owner: "{{ user.name }}"
+      group: "{{ user.name }}"
+      mode: 0775
+      force: yes
+
+  when: not autoscan_config.stat.exists
